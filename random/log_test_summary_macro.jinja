@@ -1,0 +1,45 @@
+{% macro log_test_summary(results, target) %}
+
+    {# Only run if we are in execute mode and there are results #}
+    {% if execute and results %}
+        {{ log("log_test_summary macro is running!!", info=True) }}
+        {% set tests = [] %}
+        {% for res in results %}
+            {% if res.node.resource_type == 'test' %}
+                {% do tests.append(res) %}
+            {% endif %}
+        {% endfor %}
+
+        {% set insert_query %}
+            INSERT INTO my_db.my_schema.dbt_test_results (
+                target_name,
+                database,
+                query_id,
+                name,
+                status,
+                message
+            ) VALUES
+            {% for test in tests %}
+                (
+                '{{ target.name | lower }}',
+                '{{ target.database | lower }}',
+                '{{ test.adapter_response.query_id }}',
+                '{{ test.node.name }}',
+                '{{ test.status | lower}}',
+                {% if test.message %}
+                    '{{ test.message | replace("\\", "/") | replace("\'", "") }}' 
+                {% else %} 
+                    NULL
+                {% endif %}
+                )
+                {% if loop.last %};{% else %},{% endif %}
+            {% endfor %}
+        {% endset %}
+        {# https://docs.getdbt.com/reference/dbt-jinja-functions/run_query #}
+        {% do run_query(insert_query) %}
+        {% if tests|length > 0 %}
+        {{ log("Test Summary is recorded into the dbt_test_results table", info=True) }}
+        {% endif %}
+
+    {% endif %}
+{% endmacro %}
