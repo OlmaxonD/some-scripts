@@ -206,8 +206,9 @@ Macro:
 ```jinja
 {% macro log_test_summary(results, target) %}
 
-    {# Only run if we are in execute mode and there are results #}
-    {% if execute and results %}
+    {# run only when we are in execute mode, the command is dbt test and there are results #}
+    {# https://docs.getdbt.com/reference/dbt-jinja-functions/flags?version=1.10#flagswhich #}
+    {% if execute and flags.WHICH == "test" and results %}
         {{ log("log_test_summary macro is running!!", info=True) }}
         {% set tests = [] %}
         {% for res in results %}
