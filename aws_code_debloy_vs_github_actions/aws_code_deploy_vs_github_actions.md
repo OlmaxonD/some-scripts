@@ -21,6 +21,7 @@ Note: A small EC2 server or ECS container instance can be used to run tools such
 ### Advantage
 
 1. Centralized configuration: All processes can be configured in one place on GitHub
+1. Configuration is (subjectively) straigtforward 
 1. Big marketplace of both free and paid apps (actions) such as sqlfluff
 1. No need to manage containers/servers (GitHub does it).
 
